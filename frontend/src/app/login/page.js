@@ -2,8 +2,11 @@
 
 import React, { useState } from "react";
 import NavBar from "../../components/NavBar";
+import { useRouter } from "next/navigation";
 
 export default function LoginPage() {
+ const router = useRouter();
+
   const [formData, setFormData] = useState({
     email: "",
     password: "",
@@ -17,6 +20,8 @@ export default function LoginPage() {
   const handleSubmit = (e) => {
     e.preventDefault();
     alert(`Login Successful: ${JSON.stringify(formData)}`);
+    router.push("/");
+
   };
 
   return (
