@@ -1,25 +1,29 @@
-import React, { useState } from "react";
+"use client";
+
+import React, { useEffect, useState } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 
 export default function NavBar() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const router = useRouter();
 
-  const handleLogin = () => {
-    // Placeholder logic for login
-    setIsLoggedIn(true);
-  };
+  useEffect(() => {
+    // Check login status from localStorage
+    const loggedIn = localStorage.getItem("isLoggedIn") === "true";
+    setIsLoggedIn(loggedIn);
+  }, []);
 
   const handleLogout = () => {
-    // Placeholder logic for logout
+    // Clear login state
+    localStorage.removeItem("isLoggedIn");
     setIsLoggedIn(false);
+    router.push("/"); // Redirect to home page
   };
 
   return (
     <nav className="bg-black p-4 border-b-2 border-red-500">
       <div className="container mx-auto flex justify-between items-center">
-        {/* Logo */}
-        <h1 className="text-3xl font-bold text-red-500"></h1>
-
         {/* Navigation Links */}
         <div className="flex space-x-6">
           <Link
@@ -34,25 +38,27 @@ export default function NavBar() {
           >
             Search
           </Link>
-          <Link
-            href="/recommendation"
-            className="text-gray-300 text-lg hover:text-red-500 transition-colors"
-          >
-            Recommendation
-          </Link>
-          <Link
-            href="/records"
-            className="text-gray-300 text-lg hover:text-red-500 transition-colors"
-          >
-            Records
-          </Link>
           {isLoggedIn && (
-            <Link
-              href="/profile"
-              className="text-gray-300 text-lg hover:text-red-500 transition-colors"
-            >
-              Profile
-            </Link>
+            <>
+              <Link
+                href="/recommendation"
+                className="text-gray-300 text-lg hover:text-red-500 transition-colors"
+              >
+                Recommendation
+              </Link>
+              <Link
+                href="/records"
+                className="text-gray-300 text-lg hover:text-red-500 transition-colors"
+              >
+                Records
+              </Link>
+              <Link
+                href="/profile"
+                className="text-gray-300 text-lg hover:text-red-500 transition-colors"
+              >
+                Profile
+              </Link>
+            </>
           )}
         </div>
 
@@ -67,18 +73,18 @@ export default function NavBar() {
             </button>
           ) : (
             <>
-              <Link
-                href="/login"
+              <button
+                onClick={() => router.push("/login")}
                 className="bg-gray-800 text-white px-4 py-2 rounded hover:bg-gray-700"
               >
                 Login
-              </Link>
-              <Link
-                href="/signup"
+              </button>
+              <button
+                onClick={() => router.push("/signup")}
                 className="bg-gray-800 text-white px-4 py-2 rounded hover:bg-gray-700"
               >
                 Signup
-              </Link>
+              </button>
             </>
           )}
         </div>
