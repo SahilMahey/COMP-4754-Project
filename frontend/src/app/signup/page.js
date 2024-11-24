@@ -20,9 +20,8 @@ export default function SignupPage() {
   const handleSubmit = (e) => {
     e.preventDefault();
     alert(`User registered: ${JSON.stringify(formData)}`);
-    router.push("/");
-
-    // Here you can send the data to the backend
+    localStorage.setItem("isLoggedIn", "true"); // Update login state in localStorage
+    router.push("/"); // Redirect to home page
   };
 
   return (

@@ -5,23 +5,22 @@ import NavBar from "../../components/NavBar";
 import { useRouter } from "next/navigation";
 
 export default function LoginPage() {
- const router = useRouter();
-
   const [formData, setFormData] = useState({
     email: "",
     password: "",
   });
+  const router = useRouter();
 
   const handleChange = (e) => {
-    const { name, value } = e.target; // Use name attribute
+    const { name, value } = e.target;
     setFormData((prevData) => ({ ...prevData, [name]: value }));
   };
 
   const handleSubmit = (e) => {
     e.preventDefault();
     alert(`Login Successful: ${JSON.stringify(formData)}`);
-    router.push("/");
-
+    localStorage.setItem("isLoggedIn", "true"); // Update login state in localStorage
+    router.push("/"); // Redirect to home page
   };
 
   return (
