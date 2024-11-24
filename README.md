@@ -13,6 +13,7 @@ To seed database with the `movie.csv` data
 
 Run
 `cd api`
-`ts-node ./seed/seed_db.ts ./seed/movie.csv`
+
+`npx ts-node ./seed/seed_db.ts ./seed/movie.csv`
 
 To run express server `npm run dev`
