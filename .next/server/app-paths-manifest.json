@@ -1,8 +1,0 @@
-{
-  "/page": "app/page.js",
-  "/search/page": "app/search/page.js",
-  "/recommendation/page": "app/recommendation/page.js",
-  "/profile/page": "app/profile/page.js",
-  "/records/page": "app/records/page.js",
-  "/signup/page": "app/signup/page.js"
-}
