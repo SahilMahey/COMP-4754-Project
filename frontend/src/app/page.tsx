@@ -1,17 +1,34 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import NavBar from "../components/NavBar";
 import MovieCard from "../components/MovieCard";
 
 export default function HomePage() {
-    const [movies, setMovies] = useState([
-        { id: 1, title: "Inception", rating: 8.8, genre: "Sci-Fi" },
-        { id: 2, title: "The Dark Knight", rating: 9.0, genre: "Action" },
-        { id: 3, title: "Interstellar", rating: 8.6, genre: "Adventure" },
-    ]);
+    const [movies, setMovies] = useState([]);
     const [bookmarks, setBookmarks] = useState([]);
     const [isLoggedIn, setIsLoggedIn] = useState(false);
+
+    // Fetch random movies from the backend
+    useEffect(() => {
+        const fetchMovies = async () => {
+            try {
+                const response = await fetch("http://localhost:3000/api/movies/"); // Replace with your backend endpoint
+                console.log(response)
+                if (response.ok) {
+                    const data = await response.json();
+                    console.log(data)
+                    setMovies(data);
+                } else {
+                    console.error("Failed to fetch movies");
+                }
+            } catch (error) {
+                console.error("Error fetching movies:", error);
+            }
+        };
+
+        fetchMovies();
+    }, []);
 
     const handleBookmarkClick = (movie) => {
         if (!isLoggedIn) {
@@ -36,8 +53,8 @@ export default function HomePage() {
                         <MovieCard
                             key={movie.id}
                             title={movie.title}
-                            rating={movie.rating}
-                            genre={movie.genre}
+                            rating={movie.vote_average} // Updated field
+                            genre={movie.genre || "Unknown"} // Use 'Unknown' if genre is missing
                             isBookmarked={!!bookmarks.find((item) => item.id === movie.id)}
                             onDetailsClick={() => alert(`Details of ${movie.title}`)}
                             onBookmarkClick={() => handleBookmarkClick(movie)}
