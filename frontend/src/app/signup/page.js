@@ -17,12 +17,27 @@ export default function SignupPage() {
     setFormData((prevData) => ({ ...prevData, [name]: value }));
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    alert(`User registered: ${JSON.stringify(formData)}`);
-    router.push("/");
 
-    // Here you can send the data to the backend
+    try {
+      const response = await fetch("/api/signup", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(formData),
+      });
+
+      if (response.ok) {
+        alert("Signup successful!");
+        router.push("/login"); // Redirect to login page
+      } else {
+        const error = await response.json();
+        alert(error.message); // Display the error message from the server
+      }
+    } catch (error) {
+      console.error("Signup failed:", error);
+      alert("An error occurred while signing up. Please try again.");
+    }
   };
 
   return (
