@@ -3,6 +3,7 @@
 import React, { useState } from "react";
 import NavBar from "../../components/NavBar";
 import { useRouter } from "next/navigation";
+import {useSignUp} from "../hooks/useSignUp"
 
 export default function SignupPage() {
   const [formData, setFormData] = useState({
@@ -10,6 +11,7 @@ export default function SignupPage() {
     email: "",
     password: "",
   });
+  const signUpMutation = useSignUp()
   const router = useRouter();
 
   const handleChange = (e) => {
@@ -19,8 +21,13 @@ export default function SignupPage() {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    alert(`User registered: ${JSON.stringify(formData)}`);
-    localStorage.setItem("isLoggedIn", "true"); // Update login state in localStorage
+    signUpMutation.mutate({
+      name: formData.name,
+      email: formData.email,
+      password: formData.password,
+    })
+    // alert(`User registered: ${JSON.stringify(formData)}`);
+    // localStorage.setItem("isLoggedIn", "true"); // Update login state in localStorage
     router.push("/"); // Redirect to home page
   };
 
