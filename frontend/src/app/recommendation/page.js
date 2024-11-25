@@ -3,22 +3,28 @@
 import React, { useState } from "react";
 import NavBar from "../../components/NavBar";
 import MovieCard from "../../components/MovieCard";
+import MovieDetailsModal from "../../components/MovieDetailsModal";
 
 export default function RecommendationPage() {
-    const [recommendation, setRecommendation] = useState(null);
+    const [recommendations, setRecommendations] = useState([]);
     const [filters, setFilters] = useState({
         genre: "",
         rating: "",
     });
+    const [selectedMovie, setSelectedMovie] = useState(null); // For modal
+    const [bookmarks, setBookmarks] = useState(() => {
+        return JSON.parse(localStorage.getItem("bookmarks")) || [];
+    });
 
     const movies = [
-        { id: 1, title: "Inception", rating: 8.8, genre: "Sci-Fi", type: "Movie" },
-        { id: 2, title: "The Dark Knight", rating: 9.0, genre: "Action", type: "Movie" },
-        { id: 3, title: "Interstellar", rating: 8.6, genre: "Adventure", type: "Movie" },
-        { id: 4, title: "Breaking Bad", rating: 9.5, genre: "Drama", type: "Web Series" },
+        { id: 1, title: "Inception", rating: 8.8, genre: "Sci-Fi", type: "Movie", description: "A skilled thief...", poster: "/inception.jpg" },
+        { id: 2, title: "The Dark Knight", rating: 9.0, genre: "Action", type: "Movie", description: "When the Joker...", poster: "/dark-knight.jpg" },
+        { id: 3, title: "Interstellar", rating: 8.6, genre: "Adventure", type: "Movie", description: "Explorers travel...", poster: "/interstellar.jpg" },
+        { id: 4, title: "Breaking Bad", rating: 9.5, genre: "Drama", type: "Web Series", description: "A chemistry teacher...", poster: "/breaking-bad.jpg" },
+        { id: 5, title: "Avatar", rating: 7.8, genre: "Sci-Fi", type: "Movie", description: "Pandora adventure...", poster: "/avatar.jpg" },
     ];
 
-    const getRecommendation = () => {
+    const getRecommendations = () => {
         let filteredMovies = movies;
 
         // Apply filters
@@ -31,9 +37,9 @@ export default function RecommendationPage() {
             filteredMovies = filteredMovies.filter((movie) => movie.rating >= parseFloat(filters.rating));
         }
 
-        // Randomly select a movie
-        const randomMovie = filteredMovies[Math.floor(Math.random() * filteredMovies.length)];
-        setRecommendation(randomMovie || null); // If no movie matches, set recommendation to null
+        // Shuffle and pick up to 4 random recommendations
+        const shuffledMovies = filteredMovies.sort(() => 0.5 - Math.random());
+        setRecommendations(shuffledMovies.slice(0, 4)); // Display up to 4 movies
     };
 
     const handleFilterChange = (e) => {
@@ -44,12 +50,31 @@ export default function RecommendationPage() {
         }));
     };
 
+    const handleDetailsClick = (movie) => {
+        setSelectedMovie(movie);
+    };
+
+    const handleCloseModal = () => {
+        setSelectedMovie(null);
+    };
+
+    const handleBookmarkClick = (movie) => {
+        const isAlreadyBookmarked = bookmarks.some((item) => item.id === movie.id);
+
+        if (isAlreadyBookmarked) {
+            const updatedBookmarks = bookmarks.filter((item) => item.id !== movie.id);
+            setBookmarks(updatedBookmarks);
+            localStorage.setItem("bookmarks", JSON.stringify(updatedBookmarks));
+        } else {
+            const updatedBookmarks = [...bookmarks, movie];
+            setBookmarks(updatedBookmarks);
+            localStorage.setItem("bookmarks", JSON.stringify(updatedBookmarks));
+        }
+    };
+
     return (
         <>
-            {/* Navigation Bar */}
             <NavBar />
-
-            {/* Page Content */}
             <div className="p-6 bg-black min-h-screen">
                 <h1 className="text-4xl font-bold text-red-500 mb-6">Recommendations</h1>
 
@@ -80,31 +105,45 @@ export default function RecommendationPage() {
                     </select>
 
                     <button
-                        onClick={getRecommendation}
+                        onClick={getRecommendations}
                         className="bg-red-500 text-white px-6 py-2 rounded hover:bg-red-600 transition-colors"
                     >
-                        Get Recommendation
+                        Get Recommendations
                     </button>
                 </div>
 
-                {/* Recommendation Result */}
-                {recommendation ? (
-                    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
-                        <MovieCard
-                            title={recommendation.title}
-                            rating={recommendation.rating}
-                            genre={recommendation.genre}
-                            onDetailsClick={() => alert(`Details of ${recommendation.title}`)}
-                        />
+                {/* Recommendations Section */}
+                {recommendations.length > 0 ? (
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+                        {recommendations.map((movie) => (
+                            <MovieCard
+                                key={movie.id}
+                                title={movie.title}
+                                rating={movie.rating}
+                                genre={movie.genre}
+                                poster={movie.poster}
+                                isBookmarked={!!bookmarks.find((item) => item.id === movie.id)}
+                                onDetailsClick={() => handleDetailsClick(movie)}
+                                onBookmarkClick={() => handleBookmarkClick(movie)}
+                            />
+                        ))}
                     </div>
                 ) : (
-                    <p className="text-gray-400 text-lg">
+                    <p className="text-gray-400">
                         {filters.genre || filters.rating
                             ? "No movies match your filters."
-                            : "Click the button to get a recommendation!"}
+                            : "Click the button to get recommendations!"}
                     </p>
                 )}
             </div>
+
+            {/* Movie Details Modal */}
+            {selectedMovie && (
+                <MovieDetailsModal
+                    movie={selectedMovie}
+                    onClose={handleCloseModal}
+                />
+            )}
         </>
     );
 }

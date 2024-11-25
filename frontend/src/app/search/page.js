@@ -3,6 +3,7 @@
 import React, { useState } from "react";
 import NavBar from "../../components/NavBar";
 import MovieCard from "../../components/MovieCard";
+import MovieDetailsModal from "../../components/MovieDetailsModal";
 
 export default function SearchPage() {
     const [query, setQuery] = useState("");
@@ -13,6 +14,7 @@ export default function SearchPage() {
         runtime: "",
         type: "",
     });
+    const [selectedMovie, setSelectedMovie] = useState(null); // For modal
 
     const handleSearch = async () => {
         if (!query && !filters.year && !filters.runtime && !filters.type) return;
@@ -22,10 +24,10 @@ export default function SearchPage() {
         // Simulated API call with filtering logic
         setTimeout(() => {
             const allMovies = [
-                { id: 1, title: "Inception", rating: 8.8, genre: "Sci-Fi", year: 2010, runtime: 148, type: "Movie" },
-                { id: 2, title: "The Dark Knight", rating: 9.0, genre: "Action", year: 2008, runtime: 152, type: "Movie" },
-                { id: 3, title: "Interstellar", rating: 8.6, genre: "Adventure", year: 2014, runtime: 169, type: "Movie" },
-                { id: 4, title: "Breaking Bad", rating: 9.5, genre: "Drama", year: 2008, runtime: 47, type: "Web Series" },
+                { id: 1, title: "Inception", rating: 8.8, genre: "Sci-Fi", year: 2010, runtime: 148, type: "Movie", description: "A skilled thief..." },
+                { id: 2, title: "The Dark Knight", rating: 9.0, genre: "Action", year: 2008, runtime: 152, type: "Movie", description: "When the Joker..." },
+                { id: 3, title: "Interstellar", rating: 8.6, genre: "Adventure", year: 2014, runtime: 169, type: "Movie", description: "Explorers travel..." },
+                { id: 4, title: "Breaking Bad", rating: 9.5, genre: "Drama", year: 2008, runtime: 47, type: "Web Series", description: "A chemistry teacher..." },
             ];
 
             const filteredMovies = allMovies.filter((movie) => {
@@ -50,12 +52,17 @@ export default function SearchPage() {
         }));
     };
 
+    const handleDetailsClick = (movie) => {
+        setSelectedMovie(movie);
+    };
+
+    const handleCloseModal = () => {
+        setSelectedMovie(null);
+    };
+
     return (
         <>
-            {/* Navigation Bar */}
             <NavBar />
-
-            {/* Page Content */}
             <div className="p-6 bg-black min-h-screen">
                 <h1 className="text-4xl font-bold text-red-500 mb-6">Search Movies</h1>
 
@@ -124,7 +131,8 @@ export default function SearchPage() {
                                 title={movie.title}
                                 rating={movie.rating}
                                 genre={movie.genre}
-                                onDetailsClick={() => alert(`Details of ${movie.title}`)}
+                                poster={movie.poster}
+                                onDetailsClick={() => handleDetailsClick(movie)}
                             />
                         ))}
                     </div>
@@ -132,6 +140,14 @@ export default function SearchPage() {
                     <p className="text-gray-400 text-lg">No results found.</p>
                 )}
             </div>
+
+            {/* Movie Details Modal */}
+            {selectedMovie && (
+                <MovieDetailsModal
+                    movie={selectedMovie}
+                    onClose={handleCloseModal}
+                />
+            )}
         </>
     );
 }
