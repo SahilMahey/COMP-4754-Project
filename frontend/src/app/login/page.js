@@ -5,23 +5,40 @@ import NavBar from "../../components/NavBar";
 import { useRouter } from "next/navigation";
 
 export default function LoginPage() {
- const router = useRouter();
-
   const [formData, setFormData] = useState({
     email: "",
     password: "",
   });
+  const router = useRouter();
 
   const handleChange = (e) => {
-    const { name, value } = e.target; // Use name attribute
+    const { name, value } = e.target;
     setFormData((prevData) => ({ ...prevData, [name]: value }));
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    alert(`Login Successful: ${JSON.stringify(formData)}`);
-    router.push("/");
 
+    try {
+      const response = await fetch("/api/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(formData),
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        localStorage.setItem("isLoggedIn", "true"); // Store login status
+        alert(`Welcome, ${data.user.name}!`);
+        router.push("/"); // Redirect to home page
+      } else {
+        const error = await response.json();
+        alert(error.message); // Display the error message from the server
+      }
+    } catch (error) {
+      console.error("Login failed:", error);
+      alert("An error occurred while logging in. Please try again.");
+    }
   };
 
   return (
