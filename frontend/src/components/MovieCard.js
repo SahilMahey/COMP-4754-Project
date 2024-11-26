@@ -1,10 +1,10 @@
 import React, { useState } from "react";
 
-export default function MovieCard({ title, rating, genre, onDetailsClick, onBookmarkClick, isBookmarked }) {
+export default function MovieCard({ title, rating, genres, onDetailsClick, onBookmarkClick, isBookmarked }) {
     return (
         <div className="bg-gray-800 rounded-lg shadow-lg p-6 transition-transform hover:scale-105 hover:bg-gray-700">
             <h2 className="text-2xl font-bold text-red-500">{title}</h2>
-            <p className="text-gray-300 mt-2">Genre: {genre}</p>
+            <p className="text-gray-300 mt-2">Genre: {genres.join()}</p>
             <p className="text-gray-300 mt-2">Rating: {rating}</p>
             <div className="flex items-center justify-between mt-4">
                 <button

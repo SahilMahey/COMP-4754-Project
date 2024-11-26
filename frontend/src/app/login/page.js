@@ -1,14 +1,22 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { use, useEffect, useState } from "react";
 import NavBar from "../../components/NavBar";
 import { useRouter } from "next/navigation";
+import { useLogin } from "../hooks/useAuth";
 
 export default function LoginPage() {
   const [formData, setFormData] = useState({
     email: "",
     password: "",
   });
+  const {
+    mutate: login,
+    isSuccess: isLoginSuccessful,
+    isError: isLoginError,
+    error: loginError,
+  } = useLogin();
+  const [loginErrorMessage, setLoginErrorMessage] = useState(null);
   const router = useRouter();
 
   const handleChange = (e) => {
@@ -16,11 +24,22 @@ export default function LoginPage() {
     setFormData((prevData) => ({ ...prevData, [name]: value }));
   };
 
+  useEffect(() => {
+    if (isLoginSuccessful) {
+      localStorage.setItem("isLoggedIn", true);
+      router.push("/");
+    }
+  }, [isLoginSuccessful]);
+
+  useEffect(() => {
+    if (isLoginError && loginError) {
+      setLoginErrorMessage(loginError.response.data.message);
+    }
+  }, [isLoginError, loginError]);
+
   const handleSubmit = (e) => {
     e.preventDefault();
-    alert(`Login Successful: ${JSON.stringify(formData)}`);
-    localStorage.setItem("isLoggedIn", "true"); // Update login state in localStorage
-    router.push("/"); // Redirect to home page
+    login({ email: formData.email, password: formData.password });
   };
 
   return (
@@ -32,6 +51,9 @@ export default function LoginPage() {
           className="max-w-md mx-auto bg-gray-800 p-6 rounded-lg"
           onSubmit={handleSubmit}
         >
+          <p className="text-red-300">
+            {loginErrorMessage && loginErrorMessage}
+          </p>
           <label className="block text-gray-300 mb-2">Email</label>
           <input
             type="email"

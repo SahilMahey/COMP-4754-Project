@@ -54,7 +54,7 @@ export default function HomePage() {
                             key={movie.id}
                             title={movie.title}
                             rating={movie.vote_average} // Updated field
-                            genre={movie.genre || "Unknown"} // Use 'Unknown' if genre is missing
+                            genres={movie.genres || "Unknown"} // Use 'Unknown' if genre is missing
                             isBookmarked={!!bookmarks.find((item) => item.id === movie.id)}
                             onDetailsClick={() => alert(`Details of ${movie.title}`)}
                             onBookmarkClick={() => handleBookmarkClick(movie)}

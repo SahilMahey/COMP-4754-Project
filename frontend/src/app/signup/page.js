@@ -1,8 +1,9 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import NavBar from "../../components/NavBar";
 import { useRouter } from "next/navigation";
+import { useSignUp } from "../hooks/useAuth";
 
 export default function SignupPage() {
   const [formData, setFormData] = useState({
@@ -10,7 +11,25 @@ export default function SignupPage() {
     email: "",
     password: "",
   });
+  const [signUpErrorMessage, setSignUpErrorMessage] = useState(null);
+  const {
+    mutate: signUpMutate,
+    isError: isSignUpError,
+    isSuccess: isSignUpSuccessful,
+    error: signUpError,
+  } = useSignUp();
   const router = useRouter();
+
+  useEffect(() => {
+    if (isSignUpError && signUpError) {
+      setSignUpErrorMessage(signUpError.response.data.message);
+    }
+  }, [isSignUpError, signUpError]);
+
+  if (isSignUpSuccessful) {
+    localStorage.setItem("isLoggedIn", true);
+    router.push("/");
+  }
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -19,10 +38,19 @@ export default function SignupPage() {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    alert(`User registered: ${JSON.stringify(formData)}`);
-    localStorage.setItem("isLoggedIn", "true"); // Update login state in localStorage
-    router.push("/"); // Redirect to home page
+    try {
+      signUpMutate({
+        name: formData.name,
+        email: formData.email,
+        password: formData.password,
+      });
+    } catch (error) {
+      console.log("error: ", error);
+    }
+
+    // router.push("/"); // Redirect to home page
   };
+  console.log("Error message: ", signUpErrorMessage);
 
   return (
     <>
@@ -33,6 +61,9 @@ export default function SignupPage() {
           className="max-w-md mx-auto bg-gray-800 p-6 rounded-lg"
           onSubmit={handleSubmit}
         >
+          <p className="text-red-300">
+            {signUpErrorMessage && signUpErrorMessage}
+          </p>
           <label className="block text-gray-300 mb-2">Name</label>
           <input
             type="text"
