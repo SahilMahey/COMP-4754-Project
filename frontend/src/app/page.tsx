@@ -3,60 +3,44 @@
 import React, { useState, useEffect } from "react";
 import NavBar from "../components/NavBar";
 import MovieCard from "../components/MovieCard";
-import MovieDetailsModal from "../components/MovieDetailsModal";
 
 export default function HomePage() {
-    const [movies, setMovies] = useState([
-        {
-            id: 1,
-            title: "Inception",
-            rating: 8.8,
-            genre: "Sci-Fi",
-            poster: "/inception.jpg",
-            year: 2010,
-            description:
-                "A skilled thief steals valuable secrets from the subconscious during the dream state.",
-        },
-        {
-            id: 2,
-            title: "The Dark Knight",
-            rating: 9.0,
-            genre: "Action",
-            poster: "/dark-knight.jpg",
-            year: 2008,
-            description:
-                "When the menace known as the Joker emerges, he wreaks havoc on Gotham.",
-        },
-    ]);
-
+    const [movies, setMovies] = useState([]);
     const [bookmarks, setBookmarks] = useState([]);
-    const [selectedMovie, setSelectedMovie] = useState(null); // Modal logic
+    const [isLoggedIn, setIsLoggedIn] = useState(false);
 
-    // Load bookmarks from localStorage
+    // Fetch random movies from the backend
     useEffect(() => {
-        const savedBookmarks = JSON.parse(localStorage.getItem("bookmarks")) || [];
-        setBookmarks(savedBookmarks);
+        const fetchMovies = async () => {
+            try {
+                const response = await fetch("http://localhost:3000/api/movies/"); // Replace with your backend endpoint
+                console.log(response)
+                if (response.ok) {
+                    const data = await response.json();
+                    console.log(data)
+                    setMovies(data);
+                } else {
+                    console.error("Failed to fetch movies");
+                }
+            } catch (error) {
+                console.error("Error fetching movies:", error);
+            }
+        };
+
+        fetchMovies();
     }, []);
 
-    // Save bookmarks to localStorage
-    useEffect(() => {
-        localStorage.setItem("bookmarks", JSON.stringify(bookmarks));
-    }, [bookmarks]);
-
     const handleBookmarkClick = (movie) => {
+        if (!isLoggedIn) {
+            alert("Please login or signup to bookmark movies.");
+            return;
+        }
+
         setBookmarks((prev) =>
             prev.find((item) => item.id === movie.id)
-                ? prev.filter((item) => item.id !== movie.id)
-                : [...prev, movie]
+                ? prev.filter((item) => item.id !== movie.id) // Remove if already bookmarked
+                : [...prev, movie] // Add if not already bookmarked
         );
-    };
-
-    const handleDetailsClick = (movie) => {
-        setSelectedMovie(movie);
-    };
-
-    const handleCloseModal = () => {
-        setSelectedMovie(null); // Close the modal
     };
 
     return (
@@ -64,29 +48,20 @@ export default function HomePage() {
             <NavBar />
             <div className="p-6 bg-black min-h-screen">
                 <h1 className="text-4xl font-bold text-red-500 mb-6">Top Movies</h1>
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
                     {movies.map((movie) => (
                         <MovieCard
                             key={movie.id}
                             title={movie.title}
-                            rating={movie.rating}
-                            genre={movie.genre}
-                            poster={movie.poster}
+                            rating={movie.vote_average} // Updated field
+                            genres={movie.genres || "Unknown"} // Use 'Unknown' if genre is missing
                             isBookmarked={!!bookmarks.find((item) => item.id === movie.id)}
-                            onDetailsClick={() => handleDetailsClick(movie)}
+                            onDetailsClick={() => alert(`Details of ${movie.title}`)}
                             onBookmarkClick={() => handleBookmarkClick(movie)}
                         />
                     ))}
                 </div>
             </div>
-
-            {/* Movie Details Modal */}
-            {selectedMovie && (
-                <MovieDetailsModal
-                    movie={selectedMovie}
-                    onClose={handleCloseModal}
-                />
-            )}
         </>
     );
 }

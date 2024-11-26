@@ -8,6 +8,10 @@ interface SignUpData {
     password: string;
 }
 
+interface LoginData extends Omit<SignUpData, 'name'> {
+
+}
+
 interface User {
     id: string;
     email: string;
@@ -23,4 +27,16 @@ export function useSignUp() {
             console.error('Signup failed:', error);
         },
     });
+}
+
+export function useLogin() {
+    return useMutation<User, Error, LoginData>({
+        mutationFn: async (data) => await axios.post('/users/login', data),
+        onSuccess: (data) => {
+            console.log('User signed up:', data);
+        },
+        onError: (error) => {
+            console.error('Signup failed:', error);
+        },
+    })
 }

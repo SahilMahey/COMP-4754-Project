@@ -6,6 +6,18 @@ const createUser = async (req: Request, res: Response) => {
     try {
         const { name, email, password } = req.body
 
+        const existingUser = await db.query(
+            `SELECT id FROM users WHERE email = $1`,
+            [email]
+        )
+
+        if (existingUser.rows.length > 0) {
+            return res.status(409).json({
+                success: false,
+                message: 'User with this email already exists'
+            })
+        }
+
         const result = await db.query(
             `INSERT INTO users (name, email, password) 
              VALUES ($1, $2, $3) 

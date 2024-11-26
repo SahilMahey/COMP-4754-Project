@@ -1,19 +1,13 @@
-"use client"
+import Providers from '../../providers';
 import './globals.css';
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
-
-// Create a client
-const queryClient = new QueryClient();
 
 export default function RootLayout({ children }) {
     return (
         <html lang="en">
             <body>
-                <QueryClientProvider client={queryClient}>
+                <Providers>
                     {children}
-                    <ReactQueryDevtools initialIsOpen={false} />
-                </QueryClientProvider>
+                </Providers>
             </body>
         </html>
     );

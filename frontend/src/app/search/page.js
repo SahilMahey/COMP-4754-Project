@@ -3,7 +3,6 @@
 import React, { useState } from "react";
 import NavBar from "../../components/NavBar";
 import MovieCard from "../../components/MovieCard";
-import MovieDetailsModal from "../../components/MovieDetailsModal";
 
 export default function SearchPage() {
     const [query, setQuery] = useState("");
@@ -11,39 +10,50 @@ export default function SearchPage() {
     const [loading, setLoading] = useState(false);
     const [filters, setFilters] = useState({
         year: "",
+        yearComparison: "=",
         runtime: "",
-        type: "",
+        runtimeComparison: "=",
+        type: "Movie", // Default type is "Movie"
     });
-    const [selectedMovie, setSelectedMovie] = useState(null); // For modal
+    const [errorMessage, setErrorMessage] = useState(""); // State to store error message
 
+    // Function to handle search
     const handleSearch = async () => {
-        if (!query && !filters.year && !filters.runtime && !filters.type) return;
+        console.log(query);
+        console.log(filters.year);
+        console.log(filters.yearComparison);
+        console.log(filters.runtime);
+        console.log(filters.runtimeComparison);
+        console.log(filters.type); // Log the selected type
+
+        if (!query && !filters.year && !filters.runtime && !filters.type) return; // Only search if there's a query or filters
 
         setLoading(true);
+        setErrorMessage(""); // Reset the error message
 
-        // Simulated API call with filtering logic
-        setTimeout(() => {
-            const allMovies = [
-                { id: 1, title: "Inception", rating: 8.8, genre: "Sci-Fi", year: 2010, runtime: 148, type: "Movie", description: "A skilled thief..." },
-                { id: 2, title: "The Dark Knight", rating: 9.0, genre: "Action", year: 2008, runtime: 152, type: "Movie", description: "When the Joker..." },
-                { id: 3, title: "Interstellar", rating: 8.6, genre: "Adventure", year: 2014, runtime: 169, type: "Movie", description: "Explorers travel..." },
-                { id: 4, title: "Breaking Bad", rating: 9.5, genre: "Drama", year: 2008, runtime: 47, type: "Web Series", description: "A chemistry teacher..." },
-            ];
+        // Send the search parameters to the backend
+        try {
+            const response = await fetch(
+                `http://localhost:3000/api/search?query=${query}&year=${filters.year}&yearComparison=${filters.yearComparison}&runtime=${filters.runtime}&runtimeComparison=${filters.runtimeComparison}&type=${filters.type}`
+            );
+            const data = await response.json();
+            console.log(data); // Log the fetched data
 
-            const filteredMovies = allMovies.filter((movie) => {
-                return (
-                    (!query || movie.title.toLowerCase().includes(query.toLowerCase())) &&
-                    (!filters.year || movie.year === parseInt(filters.year)) &&
-                    (!filters.runtime || movie.runtime <= parseInt(filters.runtime)) &&
-                    (!filters.type || movie.type.toLowerCase() === filters.type.toLowerCase())
-                );
-            });
-
-            setMovies(filteredMovies);
+            if (data.message) {
+                setErrorMessage(data.message); // If there's a message from the backend (like "No movies found"), set it
+                setMovies([]); // Clear the movie list if no results
+            } else {
+                setMovies(data); // Update the movie state with the response data
+            }
+        } catch (error) {
+            console.error("Error fetching movies:", error);
+            setErrorMessage("An error occurred while fetching movies. Please try again later.");
+        } finally {
             setLoading(false);
-        }, 1000);
+        }
     };
 
+    // Handle changes in input fields
     const handleFilterChange = (e) => {
         const { name, value } = e.target;
         setFilters((prevFilters) => ({
@@ -52,22 +62,18 @@ export default function SearchPage() {
         }));
     };
 
-    const handleDetailsClick = (movie) => {
-        setSelectedMovie(movie);
-    };
-
-    const handleCloseModal = () => {
-        setSelectedMovie(null);
-    };
-
     return (
         <>
+            {/* Navigation Bar */}
             <NavBar />
+
+            {/* Page Content */}
             <div className="p-6 bg-black min-h-screen">
                 <h1 className="text-4xl font-bold text-red-500 mb-6">Search Movies</h1>
 
                 {/* Search and Filter Bar */}
                 <div className="flex flex-wrap gap-4 mb-6">
+                    {/* Query input field */}
                     <input
                         type="text"
                         placeholder="Search by title..."
@@ -76,42 +82,62 @@ export default function SearchPage() {
                         className="flex-1 px-4 py-2 rounded bg-gray-800 text-white focus:outline-none focus:ring-2 focus:ring-red-500"
                     />
 
-                    {/* Filters */}
-                    <select
-                        name="year"
+                    {/* Year input field */}
+                    <input
+                        type="text"
+                        placeholder="Enter year (e.g., 2020)"
                         value={filters.year}
                         onChange={handleFilterChange}
+                        name="year"
                         className="px-4 py-2 rounded bg-gray-800 text-white focus:outline-none focus:ring-2 focus:ring-red-500"
-                    >
-                        <option value="">Year</option>
-                        <option value="2008">2008</option>
-                        <option value="2010">2010</option>
-                        <option value="2014">2014</option>
-                    </select>
+                    />
 
+                    {/* Year comparison selector */}
                     <select
-                        name="runtime"
-                        value={filters.runtime}
+                        name="yearComparison"
+                        value={filters.yearComparison}
                         onChange={handleFilterChange}
                         className="px-4 py-2 rounded bg-gray-800 text-white focus:outline-none focus:ring-2 focus:ring-red-500"
                     >
-                        <option value="">Runtime (mins)</option>
-                        <option value="60">Up to 60 mins</option>
-                        <option value="120">Up to 120 mins</option>
-                        <option value="150">Up to 150 mins</option>
+                        <option value="=">Equal to</option>
+                        <option value=">">Greater than</option>
+                        <option value="<">Less than</option>
                     </select>
 
+                    {/* Runtime input field */}
+                    <input
+                        type="text"
+                        placeholder="Enter runtime (e.g., 120)"
+                        value={filters.runtime}
+                        onChange={handleFilterChange}
+                        name="runtime"
+                        className="px-4 py-2 rounded bg-gray-800 text-white focus:outline-none focus:ring-2 focus:ring-red-500"
+                    />
+
+                    {/* Runtime comparison selector */}
+                    <select
+                        name="runtimeComparison"
+                        value={filters.runtimeComparison}
+                        onChange={handleFilterChange}
+                        className="px-4 py-2 rounded bg-gray-800 text-white focus:outline-none focus:ring-2 focus:ring-red-500"
+                    >
+                        <option value="=">Equal to</option>
+                        <option value=">">Greater than</option>
+                        <option value="<">Less than</option>
+                    </select>
+
+                    {/* Type selector */}
                     <select
                         name="type"
                         value={filters.type}
                         onChange={handleFilterChange}
                         className="px-4 py-2 rounded bg-gray-800 text-white focus:outline-none focus:ring-2 focus:ring-red-500"
                     >
-                        <option value="">Type</option>
                         <option value="Movie">Movie</option>
                         <option value="Web Series">Web Series</option>
                     </select>
 
+                    {/* Search button */}
                     <button
                         onClick={handleSearch}
                         className="bg-red-500 text-white px-6 py-2 rounded hover:bg-red-600 transition-colors"
@@ -123,31 +149,24 @@ export default function SearchPage() {
                 {/* Results Section */}
                 {loading ? (
                     <p className="text-gray-200 text-lg">Loading...</p>
+                ) : errorMessage ? (
+                    <p className="text-gray-400 text-lg">{errorMessage}</p> // Display error message from backend
                 ) : movies.length > 0 ? (
                     <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
                         {movies.map((movie) => (
                             <MovieCard
                                 key={movie.id}
                                 title={movie.title}
-                                rating={movie.rating}
-                                genre={movie.genre}
-                                poster={movie.poster}
-                                onDetailsClick={() => handleDetailsClick(movie)}
+                                rating={movie.vote_average}
+                                genre={movie.genre} // Assuming you have a genre property
+                                onDetailsClick={() => alert(`Details of ${movie.title}`)}
                             />
                         ))}
                     </div>
                 ) : (
-                    <p className="text-gray-400 text-lg">No results found.</p>
+                    <p className="text-gray-400 text-lg">Search For Movies.</p> // If no data and no message from backend
                 )}
             </div>
-
-            {/* Movie Details Modal */}
-            {selectedMovie && (
-                <MovieDetailsModal
-                    movie={selectedMovie}
-                    onClose={handleCloseModal}
-                />
-            )}
         </>
     );
 }
