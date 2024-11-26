@@ -3,28 +3,33 @@ import db from '../db';
 
 const searchMovies = async (req: Request, res: Response): Promise<any> => {
     try {
-        console.log(req.query);
         const { query, year, yearComparison, runtime, runtimeComparison, type } = req.query;
-        console.log(query);
-        console.log(year);
-        console.log(runtime);
-        console.log(type);
 
         // Base query: Always select from the movies table
-        let queryText = "SELECT * FROM movies WHERE 1=1"; // Start with a condition that is always true
+        let queryText = `
+            SELECT 
+                m.*,
+                ARRAY_AGG(DISTINCT g.name) as genres,
+                ARRAY_AGG(DISTINCT pc.name) as production_companies
+            FROM movies m
+            LEFT JOIN movie_genres mg ON m.id = mg.movie_id
+            LEFT JOIN genres g ON mg.genre_id = g.id
+            LEFT JOIN movie_production_companies mpc ON m.id = mpc.movie_id
+            LEFT JOIN production_companies pc ON mpc.company_id = pc.id
+            WHERE 1=1
+            `
         let queryParams: any[] = []; // Initialize query parameters
 
-        // If a search query is provided, filter by title
         if (query) {
-            queryText += ` AND title ILIKE $${queryParams.length + 1}`; 
+            queryText += ` AND title ILIKE $${queryParams.length + 1}`;
             queryParams.push(`%${query}%`); // Add the query parameter
         }
 
         if ((year && !/^\d{4}$/.test(year as string)) || (runtime && isNaN(Number(runtime)))) {
             return res.json({
                 message: "Invalid input format. Please ensure:\n" +
-                         "- Year is a 4-digit number (e.g., 2022).\n" +
-                         "- Runtime is a valid number (e.g., 120)."
+                    "- Year is a 4-digit number (e.g., 2022).\n" +
+                    "- Runtime is a valid number (e.g., 120)."
             });
         }
 
@@ -54,20 +59,17 @@ const searchMovies = async (req: Request, res: Response): Promise<any> => {
             if (!validTypes.includes(type as string)) {
                 return res.json({ message: "Invalid type. Valid options are 'Movie' or 'Web Series'." });
             }
-            queryText += ` AND type = $${queryParams.length + 1}`; 
+            queryText += ` AND type = $${queryParams.length + 1}`;
             queryParams.push(type); // Add type to queryParams
         }
+        queryText += `
+            GROUP BY m.id
+            ORDER BY m.release_date DESC, m.title
+            LIMIT 100
+        `;
 
-        // Perform the database query
-        console.log(queryParams);
         const result = await db.query(queryText, queryParams);
 
-        // If no results, return a message
-        if (result.rows.length === 0) {
-            return res.json({ message: "No movies found matching the filters" });
-        }
-
-        // Return the query results
         res.json(result.rows);
     } catch (error) {
         console.error('Error: ', error);
