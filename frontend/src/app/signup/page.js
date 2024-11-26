@@ -26,10 +26,12 @@ export default function SignupPage() {
     }
   }, [isSignUpError, signUpError]);
 
-  if (isSignUpSuccessful) {
-    localStorage.setItem("isLoggedIn", true);
-    router.push("/");
-  }
+  // Redirect to login page on successful signup
+  useEffect(() => {
+    if (isSignUpSuccessful) {
+      router.push("/login");
+    }
+  }, [isSignUpSuccessful, router]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -45,12 +47,9 @@ export default function SignupPage() {
         password: formData.password,
       });
     } catch (error) {
-      console.log("error: ", error);
+      console.log("Error during signup: ", error);
     }
-
-    // router.push("/"); // Redirect to home page
   };
-  console.log("Error message: ", signUpErrorMessage);
 
   return (
     <>
