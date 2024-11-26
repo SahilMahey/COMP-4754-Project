@@ -7,6 +7,10 @@ async function createTables() {
             email TEXT NOT NULL,
             password TEXT NOT NULL
         )`,
+        `CREATE TABLE IF NOT EXISTS user_bookmarks (
+            user_id INTEGER,
+            movie_id INTEGER,
+        )`,
         // Movies table (main table)
         `CREATE TABLE IF NOT EXISTS movies (
             id SERIAL PRIMARY KEY,
