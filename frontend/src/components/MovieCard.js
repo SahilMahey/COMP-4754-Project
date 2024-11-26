@@ -109,7 +109,7 @@ export default function MovieCard({
       <div className="bg-gray-800 rounded-lg shadow-lg p-6 transition-transform hover:scale-105 hover:bg-gray-700">
         <h2 className="text-2xl font-bold text-red-500">{movie.title}</h2>
         <p className="text-gray-300 mt-2">Genre: {movie.genres.join()}</p>
-        <p className="text-gray-300 mt-2">Rating: {movie.rating}</p>
+        <p className="text-gray-300 mt-2">Rating: {movie.vote_average}</p>
         <div className="flex items-center justify-between mt-4">
           <button
             className="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600 transition-colors"
