@@ -9,7 +9,7 @@ async function createTables() {
         )`,
         `CREATE TABLE IF NOT EXISTS user_bookmarks (
             user_id INTEGER,
-            movie_id INTEGER,
+            movie_id INTEGER
         )`,
         // Movies table (main table)
         `CREATE TABLE IF NOT EXISTS movies (

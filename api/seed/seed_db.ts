@@ -10,7 +10,6 @@ async function seedDb(csvPath: string) {
 
         console.log(`Processed ${jsonArray.length} records from CSV`);
 
-
         await createTables()
         insertMovieData(jsonArray)
 
