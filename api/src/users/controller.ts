@@ -87,5 +87,45 @@ const loginUser = async (req: Request, res: Response) => {
         })
     }
 }
-
-export default { createUser, loginUser }
+const getProfile = async (req: Request, res: Response) => {
+    try {
+      const { email } = req.query;
+  
+      if (!email) {
+        return res.status(400).json({
+          success: false,
+          message: "Email is required",
+        });
+      }
+  
+      const result = await db.query(
+        `SELECT id, name, email 
+         FROM users 
+         WHERE email = $1`,
+        [email]
+      );
+  
+      const user = result.rows[0];
+  
+      if (!user) {
+        return res.status(404).json({
+          success: false,
+          message: "User not found",
+        });
+      }
+  
+      res.status(200).json({
+        success: true,
+        data: user,
+      });
+    } catch (error) {
+      console.error("Error fetching profile:", error);
+      res.status(500).json({
+        success: false,
+        message: "Error fetching profile",
+        error,
+      });
+    }
+  };
+  
+export default { createUser, loginUser, getProfile}

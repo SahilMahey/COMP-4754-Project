@@ -5,5 +5,6 @@ const router = express.Router()
 
 router.post('/signup', userController.createUser as RequestHandler)
 router.post('/login', userController.loginUser as RequestHandler)
+router.get("/profile", userController.getProfile as RequestHandler);
 
 export default router
