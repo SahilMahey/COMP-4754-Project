@@ -13,6 +13,7 @@ export default function LoginPage() {
   const [loginErrorMessage, setLoginErrorMessage] = useState(null);
   const {
     mutate: login,
+    data: loginData,
     isSuccess: isLoginSuccessful,
     isError: isLoginError,
     error: loginError,
@@ -29,14 +30,16 @@ export default function LoginPage() {
   useEffect(() => {
     if (isLoginSuccessful) {
       localStorage.setItem("isLoggedIn", "true"); // Store login status
+      localStorage.setItem("userEmail", loginData.email);
+      localStorage.setItem("userId", loginData.id);
       router.push("/"); // Redirect to homepage
     }
   }, [isLoginSuccessful, router]);
 
-  // Handle login errors
   useEffect(() => {
     if (isLoginError && loginError) {
-      const errorMessage = loginError.response?.data?.message || "Login failed. Please try again.";
+      const errorMessage =
+        loginError.response?.data?.message || "Login failed. Please try again.";
       setLoginErrorMessage(errorMessage);
     }
   }, [isLoginError, loginError]);

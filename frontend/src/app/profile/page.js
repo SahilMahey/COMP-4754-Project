@@ -7,6 +7,8 @@ export default function ProfilePage() {
 
   useEffect(() => {
     const email = localStorage.getItem("userEmail");
+    const id = localStorage.getItem("userId");
+    console.log("Email: ", email);
     setUserEmail(email); // Retrieve email from localStorage
   }, []);
 
