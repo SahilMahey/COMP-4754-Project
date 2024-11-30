@@ -1,8 +1,5 @@
-// createTrigger.ts
+import db from '../src/db';
 
-import db from '../src/db'; // Ensure you import the db connection
-
-// Function to create the trigger
 export async function createTrigger() {
     const createFunctionQuery = `
         CREATE OR REPLACE FUNCTION update_movie_popularity()
@@ -23,7 +20,6 @@ export async function createTrigger() {
         EXECUTE FUNCTION update_movie_popularity();
     `;
 
-    // Run the SQL queries to create the function and trigger
     await db.query(createFunctionQuery);
     await db.query(createTriggerQuery);
 
