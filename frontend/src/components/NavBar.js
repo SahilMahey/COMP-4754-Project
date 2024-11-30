@@ -5,7 +5,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 
 export default function NavBar() {
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [isLoggedIn, setIsLoggedIn] = useState(false); // Only track login state
   const router = useRouter();
 
   useEffect(() => {
@@ -17,6 +17,7 @@ export default function NavBar() {
   const handleLogout = () => {
     // Clear login state
     localStorage.removeItem("isLoggedIn");
+    localStorage.removeItem("userEmail"); // Also remove userEmail if it exists
     setIsLoggedIn(false);
     router.push("/"); // Redirect to home page
   };
