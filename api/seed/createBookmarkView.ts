@@ -1,25 +1,25 @@
 import db from '../src/db';
 
-async function createView() {
+async function createBookmarkView() {
     const client = await db.connect();
 
     try {
         await client.query('BEGIN');
 
         const createViewQuery = `
-            CREATE OR REPLACE VIEW user_bookmarks AS
-            SELECT 
-                b.id AS bookmark_id,         
-                u.id AS user_id,             
-                u.name AS user_name,         
-                u.email AS user_email   
-            FROM 
-                bookmarks b
-            JOIN 
-                users u 
-            ON 
-                b.user_id = u.id;
-        `;
+        CREATE OR REPLACE VIEW user_bookmarks_view AS
+        SELECT 
+            ub.user_id,
+            ub.movie_id,
+            u.name AS user_name,
+            u.email AS user_email
+        FROM 
+            user_bookmarks ub
+        JOIN 
+            users u 
+        ON 
+            ub.user_id = u.id;
+    `;
 
         // Execute the CREATE VIEW query
         await client.query(createViewQuery);
@@ -34,7 +34,6 @@ async function createView() {
         client.release();
     }
 
-    await db.end();
 }
 
-export { createView };
+export { createBookmarkView };

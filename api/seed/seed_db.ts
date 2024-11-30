@@ -2,6 +2,7 @@ import csv from 'csvtojson/v2'
 import { insertMovieData } from './insertMovies';
 import { createTables } from './createTables';
 import { createMovieTitleIndex } from './createIndexOnMovieTitle';
+import { createBookmarkView } from './createBookmarkView';
 
 
 async function seedDb(csvPath: string) {
@@ -13,6 +14,7 @@ async function seedDb(csvPath: string) {
 
         await createTables()
         await insertMovieData(jsonArray)
+        await createBookmarkView()
         await createMovieTitleIndex()
 
         return jsonArray;
