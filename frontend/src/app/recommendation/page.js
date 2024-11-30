@@ -1,22 +1,10 @@
 "use client";
 
 import React, { useState } from "react";
-import { useQuery } from "@tanstack/react-query";
 import NavBar from "../../components/NavBar";
 import MovieCard from "../../components/MovieCard";
 import MovieDetailsModal from "../../components/MovieDetailsModal";
-import axios from "../axios-instance";
-
-const fetchRecommendations = async ({ queryKey }) => {
-    const [, filters] = queryKey; // Extract filters
-    const { data } = await axios.get(`/recommendations`, {
-        params: {
-            genre: filters.genre || "",
-            rating: filters.rating || "",
-        },
-    });
-    return data;
-};
+import { useRecommendations } from "../hooks/useRecommendations";
 
 export default function RecommendationPage() {
     const [filters, setFilters] = useState({
@@ -25,13 +13,7 @@ export default function RecommendationPage() {
     });
     const [selectedMovie, setSelectedMovie] = useState(null);
 
-    const { data: recommendations, isLoading, error } = useQuery(
-        ["recommendations", filters],
-        fetchRecommendations,
-        {
-            enabled: !!filters.genre || !!filters.rating, // Fetch only if filters are set
-        }
-    );
+    const { data: recommendations, isLoading, error } = useRecommendations(filters);
 
     const handleFilterChange = (e) => {
         const { name, value } = e.target;
