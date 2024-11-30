@@ -1,7 +1,8 @@
-import movieController from './controller'
-import express from 'express'
-const router = express.Router()
+import express from "express";
+import movieController from "./controller";
 
-router.get('/', movieController.get_top_10_popularity)
+const router = express.Router();
 
-export default router
+router.get('/', movieController.get_top_10_popularity);
+
+export default router;
