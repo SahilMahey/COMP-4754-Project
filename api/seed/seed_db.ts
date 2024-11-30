@@ -1,6 +1,7 @@
 import csv from 'csvtojson/v2'
 import { insertMovieData } from './insertMovies';
 import { createTables } from './createTables';
+import { createMovieTitleIndex } from './createIndexOnMovieTitle';
 
 
 async function seedDb(csvPath: string) {
@@ -11,7 +12,8 @@ async function seedDb(csvPath: string) {
         console.log(`Processed ${jsonArray.length} records from CSV`);
 
         await createTables()
-        insertMovieData(jsonArray)
+        await insertMovieData(jsonArray)
+        await createMovieTitleIndex()
 
         return jsonArray;
     } catch (error) {
