@@ -1,6 +1,7 @@
 import csv from 'csvtojson/v2'
 import { insertMovieData } from './insertMovies';
 import { createTables } from './createTables';
+import { createTrigger } from './createTriggerandFunction'; // Import the trigger creation function
 
 
 async function seedDb(csvPath: string) {
@@ -11,6 +12,8 @@ async function seedDb(csvPath: string) {
         console.log(`Processed ${jsonArray.length} records from CSV`);
 
         await createTables()
+        await createTrigger(); // Call the trigger creation function
+
         insertMovieData(jsonArray)
 
         return jsonArray;
