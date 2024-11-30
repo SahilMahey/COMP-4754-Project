@@ -39,14 +39,15 @@ export default function NavBar() {
           >
             Search
           </Link>
+          <Link
+            href="/popularity"
+            className="text-gray-300 text-lg hover:text-red-500 transition-colors"
+          >
+            Popularity
+          </Link>
+
           {isLoggedIn && (
             <>
-              <Link
-                href="/recommendation"
-                className="text-gray-300 text-lg hover:text-red-500 transition-colors"
-              >
-                Recommendation
-              </Link>
               <Link
                 href="/records"
                 className="text-gray-300 text-lg hover:text-red-500 transition-colors"

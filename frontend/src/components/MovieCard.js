@@ -5,14 +5,14 @@ function MovieModal({ movie, setIsModalOpen }) {
     poster_path,
     title,
     overview,
-    genres,
+    genres = [],
     vote_average,
     release_date,
     runtime,
     status,
     type,
     popularity,
-    production_companies,
+    production_companies = [],
   } = movie;
 
   return (
@@ -34,47 +34,51 @@ function MovieModal({ movie, setIsModalOpen }) {
             <div className="space-y-4">
               <p className="text-gray-300">
                 <span className="font-semibold text-red-400">Overview:</span>{" "}
-                {overview}
+                {overview || "No overview available."}
               </p>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <p className="text-gray-300">
                   <span className="font-semibold text-red-400">Genre:</span>{" "}
-                  {genres.join(", ")}
+                  {genres.length > 0 ? genres.join(", ") : "N/A"}
                 </p>
                 <p className="text-gray-300">
                   <span className="font-semibold text-red-400">Rating:</span>{" "}
-                  {vote_average}
+                  {vote_average || "N/A"}
                 </p>
                 <p className="text-gray-300">
                   <span className="font-semibold text-red-400">
                     Release Date:
                   </span>{" "}
-                  {new Date(release_date).toLocaleDateString()}
+                  {release_date
+                    ? new Date(release_date).toLocaleDateString()
+                    : "N/A"}
                 </p>
                 <p className="text-gray-300">
                   <span className="font-semibold text-red-400">Runtime:</span>{" "}
-                  {runtime} minutes
+                  {runtime ? `${runtime} minutes` : "N/A"}
                 </p>
                 <p className="text-gray-300">
                   <span className="font-semibold text-red-400">Status:</span>{" "}
-                  {status}
+                  {status || "N/A"}
                 </p>
                 <p className="text-gray-300">
                   <span className="font-semibold text-red-400">Type:</span>{" "}
-                  {type}
+                  {type || "N/A"}
                 </p>
                 <p className="text-gray-300">
                   <span className="font-semibold text-red-400">
                     Popularity:
                   </span>{" "}
-                  {popularity}
+                  {popularity || "N/A"}
                 </p>
               </div>
               <p className="text-gray-300 col-span-full">
                 <span className="font-semibold text-red-400">
                   Production Companies:
                 </span>{" "}
-                {production_companies.join(", ")}
+                {production_companies.length > 0
+                  ? production_companies.join(", ")
+                  : "N/A"}
               </p>
             </div>
           </div>
@@ -93,27 +97,42 @@ function MovieModal({ movie, setIsModalOpen }) {
   );
 }
 
-export default function MovieCard({
-  movie,
-  onDetailsClick,
-  onBookmarkClick,
-  isBookmarked,
-}) {
+export default function MovieCard({ movie, isBookmarked }) {
   const [isModalOpen, setIsModalOpen] = useState(false);
 
-  const handleDetailsClick = () => {
-    setIsModalOpen(true);
+  const handleBookmarkClick = async () => {
+    try {
+      const response = await fetch("/api/bookmark", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ movieId: movie.id, userId: 1 }), // Replace 1 with the logged-in user's ID
+      });
+      const data = await response.json();
+      if (data.success) alert("Movie bookmarked successfully!");
+      else alert("Failed to bookmark movie.");
+    } catch (error) {
+      console.error("Error bookmarking movie:", error);
+    }
   };
+
   return (
     <>
       <div className="bg-gray-800 rounded-lg shadow-lg p-6 transition-transform hover:scale-105 hover:bg-gray-700">
         <h2 className="text-2xl font-bold text-red-500">{movie.title}</h2>
-        <p className="text-gray-300 mt-2">Genre: {movie.genres.join()}</p>
-        <p className="text-gray-300 mt-2">Rating: {movie.vote_average}</p>
+        <p className="text-gray-300 mt-2">
+          <span className="font-semibold">Genre:</span>{" "}
+          {movie.genres && movie.genres.length > 0
+            ? movie.genres.join(", ")
+            : "N/A"}
+        </p>
+        <p className="text-gray-300 mt-2">
+          <span className="font-semibold">Rating:</span>{" "}
+          {movie.vote_average || "N/A"}
+        </p>
         <div className="flex items-center justify-between mt-4">
           <button
             className="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600 transition-colors"
-            onClick={handleDetailsClick}
+            onClick={() => setIsModalOpen(true)}
           >
             View Details
           </button>
@@ -123,15 +142,13 @@ export default function MovieCard({
                 ? "bg-green-500 hover:bg-green-600"
                 : "bg-gray-600 hover:bg-gray-700"
             } transition-colors`}
-            onClick={onBookmarkClick}
+            onClick={handleBookmarkClick}
           >
             {isBookmarked ? "Bookmarked" : "Bookmark"}
           </button>
         </div>
       </div>
-      {isModalOpen && (
-        <MovieModal movie={movie} setIsModalOpen={setIsModalOpen} />
-      )}
+      {isModalOpen && <MovieModal movie={movie} setIsModalOpen={setIsModalOpen} />}
     </>
   );
 }
