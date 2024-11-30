@@ -1,8 +1,12 @@
-import express, { RequestHandler } from 'express'
-import bookMarkController from './controller'
+import express from "express";
+import bookMarkController from "./controller";
 
-const router = express.Router()
+const router = express.Router();
 
-router.get('/', bookMarkController.addMovieToBookMarks)
+// POST route to add a movie to bookmarks
+router.post("/bookmark", bookMarkController.addMovieToBookMarks);
 
-export default router
+// GET route to retrieve user's bookmarks
+router.get("/bookmarks/:userId", bookMarkController.retrieveUserBookMarks);
+
+export default router;
