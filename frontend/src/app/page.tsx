@@ -36,7 +36,7 @@ export default function HomePage() {
         <>
             <NavBar />
             <div className="p-6 bg-black min-h-screen">
-                <h1 className="text-4xl font-bold text-red-500 mb-6">Top Movies</h1>
+                <h1 className="text-4xl font-bold text-red-500 mb-6">Movies</h1>
                 <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
                     {movies && movies.map((movie) => (
                         <MovieCard
