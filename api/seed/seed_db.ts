@@ -3,6 +3,7 @@ import { insertMovieData } from './insertMovies';
 import { createTables } from './createTables';
 import { createMovieTitleIndex } from './createIndexOnMovieTitle';
 import { createBookmarkView } from './createBookmarkView';
+import { createTrigger } from './createTriggerandFunction'; // Import the trigger creation function
 
 
 async function seedDb(csvPath: string) {
@@ -14,6 +15,7 @@ async function seedDb(csvPath: string) {
 
         await createTables()
         await insertMovieData(jsonArray)
+        await createTrigger();
         await createBookmarkView()
         await createMovieTitleIndex()
 
