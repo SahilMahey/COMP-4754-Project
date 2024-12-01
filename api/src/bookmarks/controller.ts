@@ -1,33 +1,25 @@
-import { Request, Response } from "express";
-import db from "../db";
+import { Request, Response } from "express"
+import db from '../db'
 
 const addMovieToBookMarks = async (req: Request, res: Response) => {
-    const { movieId, userId } = req.body;
-    if (!movieId || !userId) {
-        res.status(400).json({ message: "Send a movieId and userId", success: false });
-        return;
+    const { movieId, userId } = req.body
+    if (!movieId && !userId) {
+        res.json({ message: "Send a movieId and userId", success: false })
     }
-
-    try {
-        const result = await db.query(
-            `
-            INSERT INTO user_bookmarks (user_id, movie_id)
-            VALUES ($1, $2)
-            RETURNING user_id, movie_id
-            `,
-            [userId, movieId]
-        );
-        res.status(201).json({ success: true, data: result.rows[0], message: "Added user bookmarks to database" });
-    } catch (error: unknown) {
-        const errorMessage = error instanceof Error ? error.message : "An unknown error occurred";
-        res.status(500).json({ success: false, message: errorMessage });
-    }
-};
+    const result = await db.query(`
+        INSERT INTO user_bookmarks (user_id, movie_id)
+        VALUES ($1, $2)
+        RETURNING user_id, movie_id
+        `,
+        [userId, movieId]
+    )
+    res.json({ success: true, data: result.rows[0], message: "Add user bookmarks to database" })
+}
 
 const retrieveUserBookMarks = async (req: Request, res: Response) => {
-    const { userId } = req.params;
+    const { userId } = req.body;
     if (!userId) {
-        res.status(400).json({ message: "Send a userId", success: false });
+        res.json({ message: "Send a userId", success: false });
         return;
     }
 
@@ -42,15 +34,14 @@ const retrieveUserBookMarks = async (req: Request, res: Response) => {
             `,
             [userId]
         );
-        res.status(200).json({
+        res.json({
             success: true,
             data: result.rows,
             message: "User bookmarks retrieved with join"
         });
-    } catch (error: unknown) {
-        const errorMessage = error instanceof Error ? error.message : "An unknown error occurred";
-        res.status(500).json({ success: false, message: errorMessage });
+    } catch (error) {
+        res.json({ success: false, message: error });
     }
-};
+}
 
-export default { addMovieToBookMarks, retrieveUserBookMarks };
+export default { addMovieToBookMarks, retrieveUserBookMarks }
