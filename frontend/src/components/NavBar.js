@@ -41,12 +41,12 @@ export default function NavBar() {
           </Link>
           {isLoggedIn && (
             <>
-              <Link
+              {/* <Link
                 href="/recommendation"
                 className="text-gray-300 text-lg hover:text-red-500 transition-colors"
               >
                 Recommendation
-              </Link>
+              </Link> */}
               <Link
                 href="/records"
                 className="text-gray-300 text-lg hover:text-red-500 transition-colors"
