@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { useCreateBookmark } from "@/app/hooks/useBookmarks";
 
 function MovieModal({ movie, setIsModalOpen }) {
   const {
@@ -100,6 +101,7 @@ export default function MovieCard({
   isBookmarked,
 }) {
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const createBookmark = useCreateBookmark();
 
   const handleDetailsClick = () => {
     setIsModalOpen(true);
@@ -107,23 +109,15 @@ export default function MovieCard({
 
   const handleBookmarkClick = async () => {
     if (!isBookmarked) {
-      try {
-        const response = await fetch("api/add", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
+      createBookmark.mutate(
+        { userId: 1, movieId: movie.id },
+        {
+          onSuccess: () => {
+            onBookmarkClick();
           },
-          body: JSON.stringify({ userId: 1, movieId: movie.id }), // Replace 1 with the actual user ID
-        });
-        const data = await response.json();
-        if (!data.success) {
-          console.error("Failed to bookmark:", data.message);
         }
-      } catch (error) {
-        console.error("Error bookmarking movie:", error);
-      }
+      );
     }
-    onBookmarkClick(); // Update local state after API call
   };
 
   return (

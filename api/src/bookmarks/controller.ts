@@ -17,7 +17,7 @@ const addMovieToBookMarks = async (req: Request, res: Response) => {
 }
 
 const retrieveUserBookMarks = async (req: Request, res: Response) => {
-    const { userId } = req.body;
+    const { userId } = req.params;
     if (!userId) {
         res.json({ message: "Send a userId", success: false });
         return;
@@ -26,11 +26,20 @@ const retrieveUserBookMarks = async (req: Request, res: Response) => {
     try {
         const result = await db.query(
             `
-            SELECT u.id AS user_id, u.username, m.*
+            SELECT 
+                u.id AS user_id, 
+                m.*,
+                ARRAY_AGG(DISTINCT g.name) as genres,
+                ARRAY_AGG(DISTINCT pc.name) as production_companies
             FROM user_bookmarks ub
             JOIN users u ON ub.user_id = u.id
             JOIN movies m ON ub.movie_id = m.id
+            LEFT JOIN movie_genres mg ON m.id = mg.movie_id
+            LEFT JOIN genres g ON mg.genre_id = g.id
+            LEFT JOIN movie_production_companies mpc ON m.id = mpc.movie_id
+            LEFT JOIN production_companies pc ON mpc.company_id = pc.id
             WHERE ub.user_id = $1
+            GROUP BY u.id, m.id
             `,
             [userId]
         );
@@ -40,6 +49,7 @@ const retrieveUserBookMarks = async (req: Request, res: Response) => {
             message: "User bookmarks retrieved with join"
         });
     } catch (error) {
+        console.log('Error', error)
         res.json({ success: false, message: error });
     }
 }

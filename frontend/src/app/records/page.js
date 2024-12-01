@@ -4,37 +4,17 @@ import React, { useState, useEffect } from "react";
 import NavBar from "../../components/NavBar";
 import MovieCard from "../../components/MovieCard";
 import MovieDetailsModal from "../../components/MovieDetailsModal";
+import { useBookmarks } from "@/app/hooks/useBookmarks";
 
 export default function RecordsPage() {
-  const [bookmarks, setBookmarks] = useState([]);
-  const [selectedMovie, setSelectedMovie] = useState(null); // For modal
+  const [selectedMovie, setSelectedMovie] = useState(null);
+  const { data: bookmarks, isLoading, error } = useBookmarks(1);
 
-  useEffect(() => {
-    const fetchBookmarks = async () => {
-      try {
-        const response = await fetch("api/records", {
-          method: "GET",
-          headers: {
-            "Content-Type": "application/json",
-          },
-        });
-        const data = await response.json();
-        if (data.success) {
-          setBookmarks(data.data); // Populate bookmarks with backend data
-        } else {
-          console.error("Failed to fetch bookmarks:", data.message);
-        }
-      } catch (error) {
-        console.error("Error fetching bookmarks:", error);
-      }
-    };
-
-    fetchBookmarks();
-  }, []);
+  console.log("Bookmarks", bookmarks);
+  if (isLoading) return <div>Loading...</div>;
 
   const handleRemoveBookmark = (movie) => {
     const updatedBookmarks = bookmarks.filter((item) => item.id !== movie.id);
-    setBookmarks(updatedBookmarks);
   };
 
   const handleDetailsClick = (movie) => {

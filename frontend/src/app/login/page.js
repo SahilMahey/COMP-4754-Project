@@ -36,7 +36,8 @@ export default function LoginPage() {
   // Handle login errors
   useEffect(() => {
     if (isLoginError && loginError) {
-      const errorMessage = loginError.response?.data?.message || "Login failed. Please try again.";
+      const errorMessage =
+        loginError.response?.data?.message || "Login failed. Please try again.";
       setLoginErrorMessage(errorMessage);
     }
   }, [isLoginError, loginError]);
