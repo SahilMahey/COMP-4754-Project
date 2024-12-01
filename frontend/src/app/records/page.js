@@ -8,7 +8,8 @@ import { useBookmarks } from "@/app/hooks/useBookmarks";
 
 export default function RecordsPage() {
   const [selectedMovie, setSelectedMovie] = useState(null);
-  const { data: bookmarks, isLoading, error } = useBookmarks(1);
+  const userId = localStorage.getItem("userId");
+  const { data: bookmarks, isLoading, error } = useBookmarks(userId);
 
   console.log("Bookmarks", bookmarks);
   if (isLoading) return <div>Loading...</div>;
