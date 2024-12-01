@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { useCreateBookmark } from "@/app/hooks/useBookmarks";
 
 function MovieModal({ movie, setIsModalOpen }) {
   const {
@@ -100,10 +101,25 @@ export default function MovieCard({
   isBookmarked,
 }) {
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const createBookmark = useCreateBookmark();
 
   const handleDetailsClick = () => {
     setIsModalOpen(true);
   };
+
+  const handleBookmarkClick = async () => {
+    if (!isBookmarked) {
+      createBookmark.mutate(
+        { userId: 1, movieId: movie.id },
+        {
+          onSuccess: () => {
+            onBookmarkClick();
+          },
+        }
+      );
+    }
+  };
+
   return (
     <>
       <div className="bg-gray-800 rounded-lg shadow-lg p-6 transition-transform hover:scale-105 hover:bg-gray-700">
@@ -123,7 +139,7 @@ export default function MovieCard({
                 ? "bg-green-500 hover:bg-green-600"
                 : "bg-gray-600 hover:bg-gray-700"
             } transition-colors`}
-            onClick={onBookmarkClick}
+            onClick={handleBookmarkClick}
           >
             {isBookmarked ? "Bookmarked" : "Bookmark"}
           </button>
