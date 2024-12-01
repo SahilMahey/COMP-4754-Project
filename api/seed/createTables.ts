@@ -1,4 +1,7 @@
 import db from '../src/db'
+
+
+
 async function createTables() {
     const queries = [
         `CREATE TABLE IF NOT EXISTS users (
@@ -6,10 +9,6 @@ async function createTables() {
             name TEXT NOT NULL,
             email TEXT NOT NULL,
             password TEXT NOT NULL
-        )`,
-        `CREATE TABLE IF NOT EXISTS user_bookmarks (
-            user_id INTEGER,
-            movie_id INTEGER
         )`,
         // Movies table (main table)
         `CREATE TABLE IF NOT EXISTS movies (
@@ -64,7 +63,12 @@ async function createTables() {
             movie_id INTEGER REFERENCES movies(id),
             actor_id INTEGER REFERENCES actors(id),
             PRIMARY KEY (movie_id, actor_id)
-        )`
+        )`,
+        `CREATE TABLE IF NOT EXISTS user_bookmarks (
+            user_id INTEGER REFERENCES users(id),
+            movie_id INTEGER REFERENCES movies(id),
+            PRIMARY KEY (user_id, movie_id)
+        )`,
     ];
 
     for (const query of queries) {

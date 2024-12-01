@@ -16,6 +16,7 @@ export default function LoginPage() {
     isSuccess: isLoginSuccessful,
     isError: isLoginError,
     error: loginError,
+    data: loginData,
   } = useLogin();
   const router = useRouter();
 
@@ -27,13 +28,18 @@ export default function LoginPage() {
 
   // Redirect to the homepage on successful login
   useEffect(() => {
-    if (isLoginSuccessful) {
-      localStorage.setItem("isLoggedIn", "true"); // Store login status
-      router.push("/"); // Redirect to homepage
+    if (isLoginSuccessful && loginData) {
+      const { email, id, name } = loginData;
+      if (email && id) {
+        localStorage.setItem("isLoggedIn", "true");
+        localStorage.setItem("userEmail", email);
+        localStorage.setItem("userId", id);
+        localStorage.setItem("userName", name); // Save name
+        router.push("/"); // Redirect to homepage
+      }
     }
-  }, [isLoginSuccessful, router]);
+  }, [isLoginSuccessful, loginData, router]);
 
-  // Handle login errors
   useEffect(() => {
     if (isLoginError && loginError) {
       const errorMessage =
@@ -57,12 +63,10 @@ export default function LoginPage() {
           className="max-w-md mx-auto bg-gray-800 p-6 rounded-lg"
           onSubmit={handleSubmit}
         >
-          {/* Display login errors */}
           {loginErrorMessage && (
             <p className="text-red-300 mb-4">{loginErrorMessage}</p>
           )}
 
-          {/* Email input */}
           <label className="block text-gray-300 mb-2">Email</label>
           <input
             type="email"
@@ -73,7 +77,6 @@ export default function LoginPage() {
             required
           />
 
-          {/* Password input */}
           <label className="block text-gray-300 mb-2">Password</label>
           <input
             type="password"
@@ -84,7 +87,6 @@ export default function LoginPage() {
             required
           />
 
-          {/* Submit button */}
           <button
             type="submit"
             className="w-full bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600 transition-colors"
@@ -93,7 +95,6 @@ export default function LoginPage() {
           </button>
         </form>
 
-        {/* Link to Signup page */}
         <p className="text-gray-400 text-center mt-6">
           Don't have an account?{" "}
           <a

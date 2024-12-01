@@ -115,7 +115,6 @@ async function insertMovieData(movieData: any) {
         client.release();
     }
 
-    await db.end();
     return movieData;
 }
 export { insertMovieData }
